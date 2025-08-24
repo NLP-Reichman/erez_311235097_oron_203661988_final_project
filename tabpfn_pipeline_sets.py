@@ -26,7 +26,7 @@ except ImportError:
     RemoteTabPFNRegressor = None
     _HAS_REMOTE = False
 
-# ==== PATCH: force TabPFN to ignore the 10k-sample limit ====
+# ==== Optional PATCH: force TabPFN to ignore the 10k-sample limit ====
 # import tabpfn.classifier as _tpcls
 
 # # Keep a reference to the original __init__
@@ -167,14 +167,6 @@ def run_tabpfn_experiment_sets(
         train_df, test_df = split_train_test(df, label_col, test_size, random_state)
 
     # define metadata flags to exclude from features
-    # flag_cols = [
-    #     'test', 'validation',
-    #     'train_50','train_100','train_200','train_500',
-    #     'train_1K','train_5K','train_10K',
-    #     'train_50K','train_100K','train_500K',
-    #     'train_1M','train_5M'
-    # ]
-    # a more robust definition
     flag_cols = [c for c in df.columns if c in {"test","validation"} or c.startswith("train_")]
     
     X_test = test_df.drop(columns=[label_col] + flag_cols)
@@ -208,7 +200,7 @@ def run_tabpfn_experiment_sets(
         key = suffix if suffix is not None else ratio
         results[key] = metrics
 
-        # ——— Print test metrics ———
+        # Print test metrics
         n_train = len(sub)
         if subsample_sets:
             # flag‐based mode: use the fixed validation set
@@ -270,7 +262,7 @@ def run_tabpfn_experiment_sets(
         plt.title('Metrics vs Subsample Ratio')
         plt.legend(); plt.show()
 
-        # ——— Aggregate into DataFrame for reporting ———
+        # Aggregate into DataFrame for reporting
         # rows=subsample sizes, cols=metrics
         df = pd.DataFrame(results).T
         # sort keys like '1K','5K','1M'
